@@ -1,45 +1,70 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			contacts: []
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
+			fetchAllContacts: () => {
+				fetch("https://playground.4geeks.com/apis/fake/contact/agenda/jessm")
+				.then(res => res.json())
+				.then(data => setStore({contacts: data}))
 			},
-			changeColor: (index, color) => {
-				//get the store
+			fetchDeleteOneContact: (id) => {
+				let options = {
+					method: 'DELETE',
+					body: JSON.stringify(id),
+					headers: {'Content-Type': 'application/json'}
+				}
+				
+				fetch("https://playground.4geeks.com/apis/fake/contact/" + id, options)
+					.then(response => {
+						if (!response.ok) throw Error(response.StatusText);
+						return response;
+					})
+					.then(response => console.log("Successfully deleted", response))
+			},
+			fetchCreatOneContact: (newContact) => {
+				let options = {
+					method: 'POST',
+					body: JSON.stringify(newContact),
+					headers: {'Content-Type': 'application/json'}
+				}
+				
+				fetch("https://playground.4geeks.com/apis/fake/contact/", options)
+					.then(response => {
+						if (!response.ok) throw Error(response.StatusText);
+						return response;
+					})
+					.then(response => console.log("Successfully added", response))
+				}
+			},
+			deleteContact: (id) => {
 				const store = getStore();
-
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
-
-				//reset the global store
-				setStore({ demo: demo });
-			}
-		}
-	};
-};
+				let revisedContactList = store.contacts.filter(contact => contact.id !== id);
+				getActions().fetchDeleteOneContact(id);
+				setStore({ contacts: revisedContactList });
+			},
+			saveContact: (fullName, address, phone, email) => {
+				let newContact = {
+					full_name: "Chuck Davis",
+					email: "chuckd@aol.com",
+					address: "5555 55 St, clearwater",
+					phone: "(727)555-5555",
+					agenda_slug: "jessm"
+				}
+				getActions().addContact(newContact);
+			},
+			addContact(aNewContact) {
+					const store = getStore();
+					let revisedStore = [...store.contacts, aNewContact];
+					// getActions().fetchCreatOneContact(aNewContact);
+					setStore({contacts: revisedStore});
+				},
+			};
+		};
 
 export default getState;
