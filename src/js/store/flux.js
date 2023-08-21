@@ -1,7 +1,13 @@
+import React from "react";
+
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			contacts: []
+			contacts: [],
+			inputFullName: "",
+			inputEmail: "",
+			inputPhone: "",
+			inputAddress: ""
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -27,20 +33,49 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.then(response => console.log("Successfully deleted", response))
 			},
-			fetchCreatOneContact: (newContact) => {
+			fetchCreatOneContact: (inputFullName, inputAddress, inputPhone, inputEmail) => {
 				let options = {
 					method: 'POST',
-					body: JSON.stringify(newContact),
+					body: JSON.stringify({
+						full_name: inputFullName,
+						email: inputEmail,
+						address: inputAddress,
+						phone: inputPhone,
+						agenda_slug: "jessm"
+					}),
 					headers: {'Content-Type': 'application/json'}
 				}
 				
 				fetch("https://playground.4geeks.com/apis/fake/contact/", options)
 					.then(response => {
 						if (!response.ok) throw Error(response.StatusText);
+						const store = getStore();
+						let revisedStore = [...store.contacts, aNewContact];
+						setStore({contacts: revisedStore});
 						return response;
 					})
 					.then(response => console.log("Successfully added", response))
+			},
+			fetchUpdateOneContact: (inputFullName, inputAddress, inputPhone, inputEmail, id) => {
+				let options = {
+					method: 'PUT',
+					body: JSON.stringify({
+						full_name: inputFullName,
+						email: inputEmail,
+						address: inputAddress,
+						phone: inputPhone,
+						agenda_slug: "jessm"
+					}),
+					headers: {'Content-Type': 'application/json'}
 				}
+				
+				fetch("https://playground.4geeks.com/apis/fake/contact/" + id, options)
+					.then(response => {
+						if (!response.ok) throw Error(response.StatusText);
+						getActions().fetchAllContacts
+						return response;
+					})
+					.then(response => console.log("Successfully added", response))
 			},
 			deleteContact: (id) => {
 				const store = getStore();
@@ -48,23 +83,27 @@ const getState = ({ getStore, getActions, setStore }) => {
 				getActions().fetchDeleteOneContact(id);
 				setStore({ contacts: revisedContactList });
 			},
-			saveContact: (fullName, address, phone, email) => {
-				let newContact = {
-					full_name: "Chuck Davis",
-					email: "chuckd@aol.com",
-					address: "5555 55 St, clearwater",
-					phone: "(727)555-5555",
-					agenda_slug: "jessm"
-				}
-				getActions().addContact(newContact);
+			// saveContact: (inputFullName, inputAddress, inputPhone, inputEmail) => {
+			// 	const store = getStore();
+			// 	let newContact = {
+			// 		full_name: inputFullName,
+			// 		email: inputEmail,
+			// 		address: inputAddress,
+			// 		phone: inputPhone,
+			// 		agenda_slug: "jessm"
+			// 	}
+			// 	getActions().addContact(newContact);
+			// },
+			// addContact(aNewContact) {
+			// 		const store = getStore();
+			// 		let revisedStore = [...store.contacts, aNewContact];
+			// 		getActions().fetchCreatOneContact(aNewContact);
+			// 		setStore({contacts: revisedStore});
+			// },
+			editContact: (id) => {
+				getActions().deleteContact(id);
+			}
 			},
-			addContact(aNewContact) {
-					const store = getStore();
-					let revisedStore = [...store.contacts, aNewContact];
-					// getActions().fetchCreatOneContact(aNewContact);
-					setStore({contacts: revisedStore});
-				},
-			};
 		};
-
+	}
 export default getState;

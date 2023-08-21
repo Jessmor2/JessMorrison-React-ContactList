@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
-const AddContact = () => {
+const UpdateContact = () => {
 
     const { store, actions } = useContext(Context);
     const navigate = useNavigate();
@@ -10,11 +10,11 @@ const AddContact = () => {
     const [inputEmail, setInputEmail] = useState("");
     const [inputPhone, setInputPhone] = useState("");
     const [inputAddress, setInputAddress] = useState("");
-
+    const { id, setId } = useState();
     return (
 
         <>
-            <h1 className="addContactHeader">Add A New Contact</h1>
+            <h1 className="addContactHeader">Update A Contact</h1>
             <form className="addContact-form">
                 <div className="form-group">
                     <label htmlFor="FullName-form"><strong>Full Name</strong></label>
@@ -47,7 +47,7 @@ const AddContact = () => {
 
             </form>
             <button type="button" className="btn btn-primary btn-lg btn-block"
-                id="saveContactButton" onClick={() => actions.fetchCreatOneContact(inputFullName, inputEmail, inputPhone, inputAddress)}
+                id="saveContactButton" onClick={() => actions.fetchUpdateOneContact(inputFullName, inputEmail, inputPhone, inputAddress, id)}
             >Save Contact</button>
             <button className="navigateButton" onClick={() => navigate("/")}>Take me back to Contacts</button>
 
@@ -55,4 +55,4 @@ const AddContact = () => {
     );
 }
 
-export default AddContact;
+export default UpdateContact;
